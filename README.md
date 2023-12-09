@@ -13,6 +13,10 @@ I used AI to help with this, and then decided to keep learning with AI.
 
 I started with a bit of knowledge, and I used technology to learn even more.
 
+I could of used AI to make this program a lot better, with refracting or other methods.
+But I didn't want to get into stuff I haven't learned from my course yet.
+The GUI stuff was a bit of an exception.
+
 Anyways, the program itself is pretty basic. Its a "to do" system at best.
 I call the tasks or jobs, "tickets".
 
