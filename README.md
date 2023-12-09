@@ -7,6 +7,7 @@ I created this program for two reasons.
 
 I started this program while learning classes and wrote it mostly by what I have learned. 
 The first version was basic, and was command line only, but it worked.
+This is why the current version is called Tickets4.
 But then I decided to dabble a bit with some GUI to make it easier to use.
 I used AI to help with this, and then decided to keep learning with AI.
 
