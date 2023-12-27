@@ -1,3 +1,12 @@
+# Updates 12/26/23
+# Bug Fix : Pending tickets would not close.
+# Updates - Changed action_log.log file name to Tickets.log
+# Updated some spacing and worked on some commenting for future edits.
+# Def Create Ticket Form - Updated ticket input form and aligned everything to the left
+# Changed default ticket views from open / pending / closed to just open / pending
+# Changed default text in a lot of areas. wasn't needed. Saves on clutter.
+
+
 import tkinter as tk
 from tkinter import ttk, scrolledtext, simpledialog, messagebox, PhotoImage
 from tkinter.font import Font
@@ -7,7 +16,9 @@ from datetime import datetime
 import webbrowser
 import logging
 
-# File to store tickets
+# File to store tickets.
+# To-Do : Make this file changeable, so you can load multiple lists depending on what your doing.
+# We could even set it up to keep opening/pending/closed tickets on different lists in the future if needed. 
 TICKET_FILE = 'tickets.json'
 
 class Ticket:
@@ -37,18 +48,20 @@ class Ticket:
         status = "Open" if self.is_open else "Closed"
         
         # Display the title on the first line and the rest of the information on the next lines
-        return f'[{status}] {self.creation_date} - {self.title} - {self.phone_number}\n    Description: {self.description}\n    Notes:\n    {notes_str if notes_str else "No notes"}\n'
+        return f'[{status}] {self.creation_date}\n Name: {self.title}\n Contact: {self.phone_number}\n Description: {self.description}\n {notes_str if notes_str else " "}\n'
 
+
+# For updates and all important info related to this program.
 def open_github():
     webbrowser.open('https://github.com/erfwerm')  # Open the GitHub page in a web browser
     logging.info("Github page for Erfwerm opened! Woo!")
 
 
+# Function to set up the logging.
 def setup_logging():
-    logging.basicConfig(filename='action_log.log', level=logging.INFO, 
+    logging.basicConfig(filename='Tickets.log', level=logging.INFO, 
                         format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-setup_logging()
 
 def show_about_this():
     about_window = tk.Toplevel(root)
@@ -67,7 +80,6 @@ def show_about_this():
 
 
 ###### TICKET FUNCTIONS ######
-
 def load_tickets():
     if not os.path.exists(TICKET_FILE):
         return []
@@ -84,7 +96,7 @@ def load_tickets():
                 data['creation_date'],
                 notes=data.get('notes', []),
                 is_open=data['is_open'],
-                status=data.get('status', 'open')  # Load the status, default to 'open' if not found
+                status=data.get('status', 'open')  
             )
             loaded_tickets.append(ticket)
             logging.info("Tickets Loaded successfully")
@@ -175,6 +187,29 @@ def update_ticket_phone(tickets, display_area):
         messagebox.showinfo("Info", "Update cancelled.")
 
 
+def display_open_pending_tickets(tickets, display_area):
+    display_area.delete('1.0', tk.END)
+
+    # Sort tickets by creation date in descending order
+    sorted_tickets = sorted(tickets, key=lambda ticket: datetime.strptime(ticket.creation_date, '%m-%d-%Y %H:%M:%S'), reverse=True)
+
+    # Display Open Tickets
+    display_area.insert(tk.END, f'\n-------------- OPEN TICKETS ----------------\n')
+    open_tickets = [ticket for ticket in sorted_tickets if ticket.status == "open" and ticket.is_open]
+    if not open_tickets:
+        display_area.insert(tk.END, 'No Open Tickets found\n\n')
+    for ticket in open_tickets:
+        display_area.insert(tk.END, f'Ticket ID: {tickets.index(ticket)} - {ticket}\n\n')
+
+    # Display Pending Tickets
+    display_area.insert(tk.END, f'\n-------------- PENDING TICKETS ----------------\n')
+    pending_tickets = [ticket for ticket in sorted_tickets if ticket.status == "pending"]
+    if not pending_tickets:
+        display_area.insert(tk.END, 'No Pending Tickets found\n\n')
+    for ticket in pending_tickets:
+        display_area.insert(tk.END, f'Ticket ID: {tickets.index(ticket)} - {ticket}\n\n')
+
+
 def display_all_tickets(tickets, display_area):
     display_area.delete('1.0', tk.END)
 
@@ -209,32 +244,32 @@ def display_all_tickets(tickets, display_area):
 def create_ticket_form(tickets, display_area):
     form_window = tk.Toplevel(root)
     form_window.title("New Ticket")
-    form_window.geometry("600x400")  # Adjust size as needed
+    form_window.geometry("600x400")  
 
-    # Labels and Entry Widgets
-    tk.Label(form_window, text="Title:").grid(row=0, column=0, sticky="nw")
+
+    tk.Label(form_window, text="Title:").grid(row=0, column=0, sticky="w")  
     title_entry = tk.Entry(form_window, width=30)
-    title_entry.grid(row=0, column=1)
+    title_entry.grid(row=0, column=1, sticky="w")  
 
-    tk.Label(form_window, text="Phone Number:").grid(row=1, column=0, sticky="nw")
+    tk.Label(form_window, text="Phone Number:").grid(row=1, column=0, sticky="w")  
     phone_entry = tk.Entry(form_window, width=30)
-    phone_entry.grid(row=1, column=1)
+    phone_entry.grid(row=1, column=1, sticky="w")  
 
-    tk.Label(form_window, text="Description:").grid(row=2, column=0, sticky="nw")
+    tk.Label(form_window, text="Description:").grid(row=2, column=0, sticky="w")  
     description_text = tk.Text(form_window, width=60, height=20)
-    description_text.grid(row=2, column=1)
+    description_text.grid(row=2, column=1, sticky="w") 
 
 
     # Submit Button
     def submit_ticket():
         title = title_entry.get()
-        description = description_text.get("1.0", tk.END).strip()  # Get text from description_text
+        description = description_text.get("1.0", tk.END).strip()  
         phone_number = phone_entry.get()
         if title and description:
             tickets.append(Ticket(title, description, phone_number))
             logging.info(f"Ticket Added {title}")
             save_tickets(tickets)
-            display_all_tickets(tickets, display_area)
+            display_open_pending_tickets(tickets, display_area)
             form_window.destroy()
         else:
             messagebox.showwarning("Invalid Input", "Title and description cannot be empty.", parent=form_window)
@@ -252,7 +287,7 @@ def set_ticket_to_pending(tickets, display_area):
         tickets[ticket_id].set_status("pending")
         logging.info(f"Changed ticket to pending {ticket_id}")
         save_tickets(tickets)
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
 
 
 def reopen_ticket_from_pending(tickets, display_area):
@@ -261,7 +296,7 @@ def reopen_ticket_from_pending(tickets, display_area):
         tickets[ticket_id].set_status("open")
         logging.info(f"Reopened ticket from pending {ticket_id}")
         save_tickets(tickets)
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
 
 
 def add_note_to_ticket_gui(tickets, display_area):
@@ -271,20 +306,19 @@ def add_note_to_ticket_gui(tickets, display_area):
     if ticket_id is not None and note:
         tickets[ticket_id].add_note(note)
         logging.info(f"Ticket updated {ticket_id} {note}")
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
 
 
 def close_ticket_gui(tickets, display_area):
+    
     ticket_id = simpledialog.askinteger("Input", "Enter ticket ID:", parent=root)
     if ticket_id is not None:
         if messagebox.askyesno("Confirm", "Are you sure you want to close this ticket?"):
             tickets[ticket_id].close()
-            tickets[ticket_id].set_status("closed")  # Update the status to 'closed'
+            tickets[ticket_id].set_status("closed")  
             logging.info(f"Ticket closed {ticket_id}")
             save_tickets(tickets)
-            display_all_tickets(tickets, display_area)
-
-
+            display_open_pending_tickets(tickets, display_area)
 
 
 def reopen_ticket_gui(tickets, display_area):
@@ -296,12 +330,14 @@ def reopen_ticket_gui(tickets, display_area):
             ticket.is_open = True 
             logging.info(f"Ticket opened {ticket_id}")
             save_tickets(tickets)  
-            display_all_tickets(tickets, display_area)
+            display_open_pending_tickets(tickets, display_area)
         else:
             messagebox.showinfo("Info", "This ticket is already open.")
     else:
         messagebox.showinfo("Info", "Invalid ticket ID.")
 
+
+# Quick action buttons for the more common actions used in the program.
 def create_toolbar(root, tickets, display_area):
     toolbar = ttk.Frame(root)
     new_button = ttk.Button(toolbar, text="New Ticket", command=lambda: create_ticket_gui(tickets, display_area))
@@ -518,6 +554,7 @@ def toggle_bold_font(display_area):
     larger_font.config(weight=new_weight)
     display_area.config(font=larger_font)
 
+#### Window Center ####
 
 def center_window(root, width=800, height=600):
     '''This function centers the program window on the screen'''
@@ -526,6 +563,8 @@ def center_window(root, width=800, height=600):
     x = (screen_width // 2) - (width // 2)
     y = (screen_height // 2) - (height // 2)
     root.geometry(f'{width}x{height}+{x}+{y}')
+
+#### Log Functions ####
 
 def view_log():
     log_window = tk.Toplevel(root)
@@ -536,10 +575,10 @@ def view_log():
     text_area.pack(expand=True, fill=tk.BOTH)
 
     def clear_log():
-        open('action_log.log', 'w').close()
+        open('Tickets.log', 'w').close()
         text_area.delete('1.0', tk.END)
 
-    with open('action_log.log', 'r') as file:
+    with open('Tickets.log', 'r') as file:
         log_content = file.read()
         text_area.insert(tk.END, log_content)
 
@@ -552,10 +591,13 @@ def view_log():
 root = tk.Tk()
 root.title("Ticket System")
 
+#Initializing the logging.
+setup_logging()
+
 # Define custom fonts
 heading_font = Font(family="Arial", size=16, weight="bold")
 body_font = Font(family="Arial", size=12)
-larger_font = Font(family="Helvetica", size=12, weight="normal")  # Define larger_font
+larger_font = Font(family="Helvetica", size=12, weight="normal")  
 
 
 # Configure the grid
@@ -582,7 +624,7 @@ create_menu(root, tickets, main_display)
 status_bar = create_status_bar(root)
 
 # Display all tickets and update status
-display_all_tickets(tickets, main_display)
+display_open_pending_tickets(tickets, main_display)
 update_status(status_bar, "Loaded tickets successfully")
 
 # Center the window and start loop
