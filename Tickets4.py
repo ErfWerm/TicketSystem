@@ -33,9 +33,11 @@ class Ticket:
     def __str__(self):
         notes_str = ''
         for note in self.notes:
-            notes_str += 'Note ({}): {}\n    '.format(note['timestamp'], note['note'])
+            notes_str += 'Note ({}): {}\n        '.format(note['timestamp'], note['note'])
         status = "Open" if self.is_open else "Closed"
-        return f'[{status}] {self.creation_date} - {self.title} ({self.phone_number}) - {self.description}\n    Notes:\n    {notes_str if notes_str else "No notes"}'
+        
+        # Display the title on the first line and the rest of the information on the next lines
+        return f'[{status}] {self.creation_date} - {self.title} - {self.phone_number}\n    Description: {self.description}\n    Notes:\n    {notes_str if notes_str else "No notes"}\n'
 
 def open_github():
     webbrowser.open('https://github.com/erfwerm')  # Open the GitHub page in a web browser
@@ -277,9 +279,11 @@ def close_ticket_gui(tickets, display_area):
     if ticket_id is not None:
         if messagebox.askyesno("Confirm", "Are you sure you want to close this ticket?"):
             tickets[ticket_id].close()
+            tickets[ticket_id].set_status("closed")  # Update the status to 'closed'
             logging.info(f"Ticket closed {ticket_id}")
             save_tickets(tickets)
             display_all_tickets(tickets, display_area)
+
 
 
 
