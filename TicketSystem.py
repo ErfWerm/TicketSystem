@@ -48,7 +48,7 @@ class Ticket:
         status = "Open" if self.is_open else "Closed"
         
         # Display the title on the first line and the rest of the information on the next lines
-        return f'[{status}] {self.creation_date}\n Name: {self.title}\n Contact: {self.phone_number}\n Description: {self.description}\n {notes_str if notes_str else " "}\n'
+        return f'[{status}] {self.creation_date}\n Name: {self.title}\n Contact: {self.phone_number}\n Description: {self.description}\n {notes_str}\n'
 
 
 # For updates and all important info related to this program.
@@ -150,7 +150,7 @@ def update_ticket_title(tickets, display_area):
         tickets[ticket_id].title = new_title
         logging.info(f"Ticket title updated {new_title}")
         save_tickets(tickets)
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
     else:
         messagebox.showinfo("Info", "Update cancelled or invalid title.")
 
@@ -166,7 +166,7 @@ def update_ticket_description(tickets, display_area):
         tickets[ticket_id].description = new_description
         logging.info(f"Ticket description updated {new_description}")
         save_tickets(tickets)
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
     else:
         messagebox.showinfo("Info", "Update cancelled or invalid description.")
 
@@ -182,7 +182,7 @@ def update_ticket_phone(tickets, display_area):
         tickets[ticket_id].phone_number = new_phone
         logging.info(f"Ticket phone updated {new_phone}")
         save_tickets(tickets)
-        display_all_tickets(tickets, display_area)
+        display_open_pending_tickets(tickets, display_area)
     else:
         messagebox.showinfo("Info", "Update cancelled.")
 
@@ -277,8 +277,8 @@ def create_ticket_form(tickets, display_area):
     submit_button = tk.Button(form_window, text="Submit", command=submit_ticket)
     submit_button.grid(row=3, column=1, sticky="e")
 
-def create_ticket_gui(tickets, display_area):
-    create_ticket_form(tickets, display_area)
+#def create_ticket_gui(tickets, display_area):
+#    create_ticket_form(tickets, display_area)
 
 
 def set_ticket_to_pending(tickets, display_area):
@@ -340,7 +340,7 @@ def reopen_ticket_gui(tickets, display_area):
 # Quick action buttons for the more common actions used in the program.
 def create_toolbar(root, tickets, display_area):
     toolbar = ttk.Frame(root)
-    new_button = ttk.Button(toolbar, text="New Ticket", command=lambda: create_ticket_gui(tickets, display_area))
+    new_button = ttk.Button(toolbar, text="New Ticket", command=lambda: create_ticket_form(tickets, display_area))
     new_button.grid(row=0, column=0, padx=2, pady=2)
     update_button = ttk.Button(toolbar, text="Update Ticket", command=lambda: add_note_to_ticket_gui(tickets, display_area))
     update_button.grid(row=0, column=2, padx=2, pady=2)
@@ -471,6 +471,7 @@ def create_menu(root, tickets, display_area):
     menu_bar.add_cascade(label="Show", menu=ticket_menu)
     ticket_menu.add_command(label="Show Open Tickets", command=lambda: display_tickets(tickets, display_area))
     ticket_menu.add_command(label="Show Closed Tickets", command=lambda: display_closed_tickets(tickets, display_area))
+    ticket_menu.add_command(label="Show Open+Pending", command=lambda: display_open_pending_tickets(tickets, display_area))
     ticket_menu.add_command(label="Show ALL Tickets", command=lambda: display_all_tickets(tickets, display_area))
   
     mode_menu = tk.Menu(menu_bar, tearoff=0)
