@@ -28,5 +28,5 @@ You can edit the original tickets as well if needed.
 
 I've put a lot of care into the design of the program. I wanted to make it efficent, but keep it simple.
 
-Download the zip here -> https://www.dropbox.com/scl/fi/z6u16sjy8olouylvms5h5/ErfWermTicketSystem.zip?rlkey=zuhya9gcl4gu34pjyxbejzsv3&dl=0
+
 
