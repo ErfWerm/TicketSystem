@@ -35,7 +35,7 @@ class Ticket:
         self.status = new_status
 
     def add_note(self, note):
-        note_entry = {'note': note, 'timestamp': datetime.now().strftime('%m-d-%Y %H:%M:%S')}
+        note_entry = {'note': note, 'timestamp': datetime.now().strftime('%m-%d-%Y %H:%M:%S')}
         self.notes.append(note_entry)
 
     def close(self):
